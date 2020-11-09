@@ -46,7 +46,13 @@ class CrimeFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val crimeId = arguments!!.getSerializable(ARG_CRIME_ID) as UUID
-        crime = CrimeLab.get(activity as Context).getCrime(crimeId)
+        crime = CrimeLab.get(activity as Context).getCrime(crimeId)!!
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        CrimeLab.get(activity as Context).updateCrime(crime)
     }
 
     override fun onCreateView(

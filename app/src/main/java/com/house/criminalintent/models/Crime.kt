@@ -2,7 +2,7 @@ package com.house.criminalintent.models
 
 import java.util.*
 
-class Crime {
+class Crime(id: UUID) {
 
     var id: UUID
         private set
@@ -12,7 +12,9 @@ class Crime {
     var solved: Boolean = false
 
     init {
-        id = UUID.randomUUID()
+        this.id = id
         date = Date()
     }
+
+    constructor(): this(UUID.randomUUID())
 }

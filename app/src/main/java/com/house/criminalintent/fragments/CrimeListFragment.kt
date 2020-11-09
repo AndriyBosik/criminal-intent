@@ -103,6 +103,7 @@ class CrimeListFragment: Fragment() {
             adapter = CrimeAdapter(crimes)
             crimeRecyclerView.adapter = adapter
         } else {
+            adapter!!.crimes = crimes
             adapter!!.notifyDataSetChanged()
         }
         updateSubtitle()
@@ -154,7 +155,7 @@ class CrimeListFragment: Fragment() {
 
     }
 
-    public override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, isSubtitleVisible)
     }
