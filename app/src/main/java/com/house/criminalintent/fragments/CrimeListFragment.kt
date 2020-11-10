@@ -26,6 +26,16 @@ class CrimeListFragment: Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = null
     private var isSubtitleVisible: Boolean = false
+    private var callbacks: Callbacks? = null
+
+    interface Callbacks {
+        fun onCrimeSelected(crime: Crime)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +82,8 @@ class CrimeListFragment: Fragment() {
             R.id.new_crime -> {
                 val crime = Crime()
                 CrimeLab.get(activity as Context).addCrime(crime)
-                val intent = CrimePagerActivity.newIntent(activity as Context, crime.id)
-                startActivity(intent)
+                updateUI()
+                callbacks!!.onCrimeSelected(crime)
                 true
             }
             R.id.show_subtitle -> {
@@ -96,7 +106,7 @@ class CrimeListFragment: Fragment() {
         activity.supportActionBar!!.subtitle = subtitle
     }
 
-    private fun updateUI() {
+    fun updateUI() {
         val crimeLab = CrimeLab.get(activity as Context)
         val crimes = crimeLab.crimes
         if (adapter == null) {
@@ -133,8 +143,7 @@ class CrimeListFragment: Fragment() {
         }
 
         override fun onClick(v: View?) {
-            val intent = CrimePagerActivity.newIntent(activity as Context, crime.id)
-            startActivity(intent)
+            callbacks!!.onCrimeSelected(crime)
         }
 
     }
@@ -158,6 +167,11 @@ class CrimeListFragment: Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, isSubtitleVisible)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 
 }

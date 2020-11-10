@@ -3,6 +3,7 @@ package com.house.criminalintent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.widget.Toast
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
@@ -10,9 +11,12 @@ abstract class SingleFragmentActivity: AppCompatActivity() {
 
     protected abstract fun createFragment(): Fragment
 
-    protected override fun onCreate(savedInstanceState: Bundle?) {
+    @LayoutRes
+    protected open fun getLayoutResId(): Int = R.layout.activity_fragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_fragment)
+        setContentView(getLayoutResId())
 
         val fm = supportFragmentManager
         var fragment = fm.findFragmentById(R.id.fragment_container)

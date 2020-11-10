@@ -52,6 +52,16 @@ class CrimeFragment: Fragment() {
     private lateinit var reportButton: Button
     private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
+    private var callbacks: Callbacks? = null
+
+    interface Callbacks {
+        fun onCrimeUpdated(crime: Crime)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +74,11 @@ class CrimeFragment: Fragment() {
         super.onPause()
 
         CrimeLab.get(activity as Context).updateCrime(crime)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 
     override fun onCreateView(
@@ -81,6 +96,7 @@ class CrimeFragment: Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 crime.title = s.toString()
+                updateCrime()
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -99,7 +115,10 @@ class CrimeFragment: Fragment() {
 
         solvedCheckBox = view.findViewById(R.id.crime_solved)
         solvedCheckBox.isChecked = crime.solved
-        solvedCheckBox.setOnCheckedChangeListener { _, isChecked -> crime.solved = isChecked }
+        solvedCheckBox.setOnCheckedChangeListener { _, isChecked -> {
+            crime.solved = isChecked
+            updateCrime()
+        } }
 
         reportButton = view.findViewById(R.id.crime_report)
         reportButton.setOnClickListener { run {
@@ -151,6 +170,7 @@ class CrimeFragment: Fragment() {
         if (requestCode == REQUEST_DATE) {
             val date = data!!.getSerializableExtra(DatePickerFragment.EXTRA_DATE) as Date
             crime.date = date
+            updateCrime()
             updateDate()
         } else if (requestCode == REQUEST_CONTACT && data != null) {
             val contactUri = data.data!!
@@ -163,13 +183,20 @@ class CrimeFragment: Fragment() {
                 cursor.moveToFirst()
                 val suspect = cursor.getString(0)
                 crime.suspect = suspect
+                updateCrime()
                 suspectButton.text = suspect
             }
         } else if (requestCode == REQUEST_PHOTO) {
             val uri = FileProvider.getUriForFile(activity as Context, "com.house.criminalintent.fileprovider", photoFile)
             activity!!.revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            updateCrime()
             updatePhotoView()
         }
+    }
+
+    private fun updateCrime() {
+        CrimeLab.get(activity as Context).updateCrime(crime)
+        callbacks!!.onCrimeUpdated(crime)
     }
 
     private fun updateDate() {

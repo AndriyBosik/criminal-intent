@@ -12,7 +12,7 @@ import com.house.criminalintent.models.Crime
 import com.house.criminalintent.models.CrimeLab
 import java.util.*
 
-class CrimePagerActivity: AppCompatActivity() {
+class CrimePagerActivity: AppCompatActivity(), CrimeFragment.Callbacks {
 
     companion object {
         private const val EXTRA_CRIME_ID = "java.com.house.criminalintent.crime_id"
@@ -47,6 +47,10 @@ class CrimePagerActivity: AppCompatActivity() {
                 break
             }
         }
+    }
+
+    override fun onCrimeUpdated(crime: Crime) {
+
     }
 
 }
