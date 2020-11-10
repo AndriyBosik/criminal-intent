@@ -4,21 +4,24 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
+import android.widget.*
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.house.criminalintent.R
 import com.house.criminalintent.models.Crime
 import com.house.criminalintent.models.CrimeLab
+import com.house.criminalintent.utils.PictureUtils
+import java.io.File
 import java.util.*
 
 class CrimeFragment: Fragment() {
@@ -28,6 +31,7 @@ class CrimeFragment: Fragment() {
         private const val DIALOG_DATE = "DialogDate"
         private const val REQUEST_DATE = 0
         private const val REQUEST_CONTACT = 1
+        private const val REQUEST_PHOTO = 2
 
         fun newInstance(crimeId: UUID): CrimeFragment {
             val args = Bundle()
@@ -40,16 +44,20 @@ class CrimeFragment: Fragment() {
     }
 
     private lateinit var crime: Crime
+    private lateinit var photoFile: File
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
     private lateinit var suspectButton: Button
     private lateinit var reportButton: Button
+    private lateinit var photoButton: ImageButton
+    private lateinit var photoView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val crimeId = arguments!!.getSerializable(ARG_CRIME_ID) as UUID
         crime = CrimeLab.get(activity as Context).getCrime(crimeId)!!
+        photoFile = CrimeLab.get(activity as Context).getPhotoFile(crime)
     }
 
     override fun onPause() {
@@ -116,6 +124,24 @@ class CrimeFragment: Fragment() {
             suspectButton.isEnabled = false
         }
 
+        photoButton = view.findViewById(R.id.crime_camera)
+        val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val canTakePhoto = photoFile != null && captureImage.resolveActivity(packageManager) != null
+        photoButton.isEnabled = canTakePhoto
+        photoButton.setOnClickListener{ run {
+            val uri = FileProvider.getUriForFile(activity as Context, "com.house.criminalintent.fileprovider", photoFile)
+            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+            val cameraActivities = activity!!.packageManager.queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
+
+            for (activity in cameraActivities) {
+                this.activity!!.grantUriPermission(activity.activityInfo.packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            }
+            startActivityForResult(captureImage, REQUEST_PHOTO)
+        } }
+
+        photoView = view.findViewById(R.id.crime_photo)
+        updatePhotoView()
+
         return view
     }
 
@@ -139,6 +165,10 @@ class CrimeFragment: Fragment() {
                 crime.suspect = suspect
                 suspectButton.text = suspect
             }
+        } else if (requestCode == REQUEST_PHOTO) {
+            val uri = FileProvider.getUriForFile(activity as Context, "com.house.criminalintent.fileprovider", photoFile)
+            activity!!.revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            updatePhotoView()
         }
     }
 
@@ -162,6 +192,15 @@ class CrimeFragment: Fragment() {
         }
 
         return getString(R.string.crime_report, crime.title, dateString, solvedString, suspect)
+    }
+
+    private fun updatePhotoView() {
+        if (photoFile == null || !photoFile.exists()) {
+            photoView.setImageDrawable(null)
+        } else {
+            val bitmap = PictureUtils.getScaledBitmap(photoFile.path, activity!!)
+            photoView.setImageBitmap(bitmap)
+        }
     }
 
 }

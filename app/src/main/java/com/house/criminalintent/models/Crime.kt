@@ -11,6 +11,7 @@ class Crime(id: UUID) {
     var title: String = ""
     var solved: Boolean = false
     var suspect: String? = null
+    val photoFilename: String = "IMG_$id.jpg"
 
     init {
         this.id = id

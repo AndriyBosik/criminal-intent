@@ -8,6 +8,7 @@ import com.house.criminalintent.database.CrimeBaseHelper
 import com.house.criminalintent.database.CrimeCursorWrapper
 import com.house.criminalintent.database.CrimeDbSchema
 import com.house.criminalintent.database.CrimeDbSchema.*
+import java.io.File
 import java.util.*
 
 class CrimeLab private constructor(context: Context) {
@@ -33,18 +34,18 @@ class CrimeLab private constructor(context: Context) {
         }
     }
 
-    private var context: Context? = null
+    private var context: Context = context.applicationContext
     private var database: SQLiteDatabase? = null
 
     var crimes: MutableList<Crime>
         get() {
             val crimes = mutableListOf<Crime>()
             val cursor = queryCrimes(null, null)
-            cursor.use { cursor ->
-                cursor.moveToFirst()
-                while (!cursor.isAfterLast) {
-                    crimes.add(cursor.getCrime())
-                    cursor.moveToNext()
+            cursor.use { c ->
+                c.moveToFirst()
+                while (!c.isAfterLast) {
+                    crimes.add(c.getCrime())
+                    c.moveToNext()
                 }
             }
             return crimes
@@ -52,13 +53,18 @@ class CrimeLab private constructor(context: Context) {
         private set
 
     init {
-        this.context = context.applicationContext
         database = CrimeBaseHelper(context).writableDatabase
 
         crimes = mutableListOf()
     }
 
     fun addCrime(crime: Crime) = database!!.insert(CrimeTable.NAME, null, getContentValues(crime))
+
+    fun getPhotoFile(crime: Crime): File {
+        val filesDir = context.filesDir
+        return File(filesDir, crime.photoFilename)
+        // if (externalFilesDir == null)
+    }
 
     fun updateCrime(crime: Crime) {
         val uuidString = crime.id.toString()
