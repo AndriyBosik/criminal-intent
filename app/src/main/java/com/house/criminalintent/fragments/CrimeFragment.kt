@@ -224,9 +224,11 @@ class CrimeFragment: Fragment() {
     private fun updatePhotoView() {
         if (photoFile == null || !photoFile.exists()) {
             photoView.setImageDrawable(null)
+            photoView.contentDescription = getString(R.string.crime_photo_no_image_description)
         } else {
             val bitmap = PictureUtils.getScaledBitmap(photoFile.path, activity!!)
             photoView.setImageBitmap(bitmap)
+            photoView.contentDescription = getString(R.string.crime_photo_image_description)
         }
     }
 

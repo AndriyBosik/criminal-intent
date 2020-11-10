@@ -27,4 +27,7 @@
     <string name="crime_report_suspect">підозрюваним є %s.</string>
     <string name="crime_report_subject">CriminalIntent Звіт Злочину</string>
     <string name="send_report">Відправити звіт злочину з допомогою</string>
+    <string name="crime_photo_button_description">Вибрати фото місця злочину</string>
+    <string name="crime_photo_no_image_description">Фото місця злочину(не вибрано)</string>
+    <string name="crime_photo_image_description">Фото місця злочину(вибрано)</string>
 </resources>
