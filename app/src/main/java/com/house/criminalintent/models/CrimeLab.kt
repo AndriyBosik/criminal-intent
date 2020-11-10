@@ -27,6 +27,8 @@ class CrimeLab private constructor(context: Context) {
             values.put(CrimeTable.Cols.UUID, crime.id.toString())
             values.put(CrimeTable.Cols.TITLE, crime.title)
             values.put(CrimeTable.Cols.DATE, crime.date.time)
+            values.put(CrimeTable.Cols.SOLVED, if (crime.solved) 1 else 0)
+            values.put(CrimeTable.Cols.SUSPECT, crime.suspect)
             return values
         }
     }

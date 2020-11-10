@@ -18,7 +18,8 @@ class CrimeBaseHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME
                 "${CrimeTable.Cols.UUID}," +
                 "${CrimeTable.Cols.TITLE}," +
                 "${CrimeTable.Cols.DATE}," +
-                "${CrimeTable.Cols.SOLVED})")
+                "${CrimeTable.Cols.SOLVED}," +
+                "${CrimeTable.Cols.SUSPECT})")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

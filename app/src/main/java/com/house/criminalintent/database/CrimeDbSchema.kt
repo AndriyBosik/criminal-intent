@@ -13,6 +13,7 @@ class CrimeDbSchema {
                 const val TITLE = "title"
                 const val DATE = "date"
                 const val SOLVED = "solved"
+                const val SUSPECT = "suspect"
             }
         }
     }

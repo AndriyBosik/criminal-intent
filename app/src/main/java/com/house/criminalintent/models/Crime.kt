@@ -10,6 +10,7 @@ class Crime(id: UUID) {
     var date: Date
     var title: String = ""
     var solved: Boolean = false
+    var suspect: String? = null
 
     init {
         this.id = id
